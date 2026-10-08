@@ -842,3 +842,6 @@ dd {
   margin-top: -15px;
   margin-bottom: 22px;
 }
+
+.verified-section { padding: 36px 0; border-top: 1px solid var(--line, #dce3e8); }
+.verified-section .hash { display: block; overflow-wrap: anywhere; margin-top: 16px; }

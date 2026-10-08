@@ -1,5 +1,6 @@
 import type { TransactionStatus } from "genlayer-js/types";
 import { contractConfig } from "./config";
+import { installRpcHttpGuard } from "./rpc-http";
 import {
   parseReview,
   type Specification,
@@ -56,7 +57,10 @@ function address(value: unknown): Address | undefined {
     ? (value as Address)
     : undefined;
 }
-function normalizeCount(value: unknown): number {
+export function normalizeCount(value: unknown): number {
+  if (!(typeof value === "number" || typeof value === "bigint" ||
+        (typeof value === "string" && /^\d+$/.test(value))))
+    throw new Error("Invalid review count returned by contract.");
   const n = Number(value);
   if (!Number.isSafeInteger(n) || n < 0)
     throw new Error("Invalid review count returned by contract.");
@@ -67,16 +71,20 @@ export function assertReceipt(value: unknown): void {
     status?: unknown;
     statusName?: unknown;
     txExecutionResultName?: unknown;
-    consensus_data?: { leader_receipt?: { execution_result?: string }[] };
+    consensus_data?: { leader_receipt?: { execution_result?: string; mode?: string; genvm_result?: { error_code?: unknown; raw_error?: unknown } }[] };
   } | null;
-  const success =
-    r?.txExecutionResultName === "SUCCESS" ||
-    r?.consensus_data?.leader_receipt?.[0]?.execution_result === "SUCCESS";
-  if (
-    !r ||
-    (r.status !== "FINALIZED" && r.statusName !== "FINALIZED") ||
-    !success
-  )
+  // Studio's leader_receipt array can also contain canceled validator runs.
+  // Only the leader's execution determines application success, never a vote.
+  const receipts = r?.consensus_data?.leader_receipt ?? [];
+  const leader = receipts.find(x => x.mode === "leader") ??
+    (receipts[0]?.mode === undefined ? receipts[0] : undefined);
+  const executions = [r?.txExecutionResultName, leader?.execution_result]
+    .filter(x => x !== undefined);
+  const finality = [r?.statusName, typeof r?.status === "string" ? r.status : undefined]
+    .filter(x => x !== undefined);
+  if (!r || !finality.includes("FINALIZED") || finality.some(x => x !== "FINALIZED") ||
+      !executions.length || executions.some(x => x !== "SUCCESS") ||
+      leader?.genvm_result?.error_code != null || leader?.genvm_result?.raw_error != null)
     throw new Error(
       "The transaction did not finalize successfully. Refresh before considering another write.",
     );
@@ -101,8 +109,10 @@ export function createGateway(
         import("genlayer-js"),
         import("genlayer-js/chains"),
       ]);
+      installRpcHttpGuard(config.rpcUrl);
       return createClient({
-        chain: studionet,
+        chain: { ...studionet, rpcUrls: { default: { http: [config.rpcUrl] } } },
+        endpoint: config.rpcUrl,
         account,
         provider: p as never,
       }) as unknown as SdkBoundary;
@@ -131,14 +141,31 @@ export function createGateway(
       chainId: Number.isSafeInteger(chainId) ? chainId : undefined,
     };
   }
+  let readBlockedUntil = 0;
+  const inflight = new Map<string, Promise<unknown>>();
   const read = async (method: string, args: unknown[]) => {
     const target = requireConfig();
-    return (await client()).readContract({
-      address: target,
-      functionName: method,
-      args,
-      jsonSafeReturn: true,
-    });
+    if (Date.now() < readBlockedUntil)
+      throw new Error("HTTP 429: read cooldown active. Wait before refreshing.");
+    const key = JSON.stringify([method, args]);
+    const existing = inflight.get(key);
+    if (existing) return existing;
+    const pending = (async () => {
+      try {
+        return await (await client()).readContract({ address: target,
+          functionName: method, args, jsonSafeReturn: true });
+      } catch (error) {
+        const e = error as { message?: string; code?: number; status?: number; retryAfter?: number };
+        if (e?.code === 429 || e?.status === 429 || /429|rate.?limit|too many requests/i.test(e?.message ?? String(error))) {
+          const seconds = Number(e?.retryAfter);
+          readBlockedUntil = Date.now() + Math.max(60, Number.isFinite(seconds) ? seconds : 0) * 1000;
+          throw new Error("HTTP 429: Too many requests. Wait before refreshing.");
+        }
+        throw error;
+      } finally { inflight.delete(key); }
+    })();
+    inflight.set(key, pending);
+    return pending;
   };
   const gateway: Gateway = {
     configured: !!config.address,
@@ -243,8 +270,8 @@ export function createGateway(
     const receipt = await sdk.waitForTransactionReceipt({
       hash: hash as Address,
       status: "FINALIZED" as TransactionStatus,
-      interval: 5000,
-      retries: 60,
+      interval: 10000,
+      retries: 30,
     });
     assertReceipt(receipt);
     return wallet.address;

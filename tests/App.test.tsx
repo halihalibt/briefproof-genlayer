@@ -68,16 +68,16 @@ it("Home navigates to Create through static hash routing", async () => {
     screen.getByRole("heading", { name: "Create a review." }),
   ).toBeVisible();
 });
-it("demo is labelled Example and has no fabricated chain outcome", async () => {
+it("static demo stays labelled; historical verified evidence is separate", async () => {
   await settled();
   expect(screen.getByText("Example / Demo")).toBeVisible();
   expect(screen.getByAltText(/FORMA:/)).toHaveAttribute(
     "src",
     expect.stringMatching(/campaign-banner\.png$/),
   );
-  expect(screen.queryByText(/Verified Onchain/i)).not.toBeInTheDocument();
-  expect(screen.queryByText("ACCEPTED")).not.toBeInTheDocument();
-  expect(screen.queryByText(/0x[0-9a-f]{64}/i)).not.toBeInTheDocument();
+  expect(screen.getByText(/Verified Onchain/i)).toBeVisible();
+  expect(screen.getByText(/ACCEPTED · 5\/5 PASS/)).toBeVisible();
+  expect(screen.getByRole("link", { name: /Evaluation transaction/ })).toHaveAttribute("href", expect.stringContaining("0xf33c581c"));
 });
 it("demo starter prefills exact brief and criteria but no HTTPS URL or result", async () => {
   window.location.hash = "/create?demo=campaign";

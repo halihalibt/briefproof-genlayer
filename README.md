@@ -2,17 +2,29 @@
 
 **Did the deliverable actually match the brief?**
 
-BriefProof is a browser-only visual acceptance workspace using the **Multimodal Acceptance Matrix** Intelligent Contract. A creator defines a brief, attaches a public HTTPS image, and specifies 1–6 acceptance criteria. Independent GenLayer Leader / Validator evaluation persists a criterion matrix and final verdict; the frontend displays those persisted results without recomputing the decision.
+BriefProof is a browser-only visual acceptance workspace powered by the reusable
+**Multimodal Acceptance Matrix** Intelligent Contract. A creator fixes a brief,
+a public HTTPS image and 1–6 criteria. Independent GenLayer Leader / Validator
+reasoning persists a matrix and deterministic verdict; the frontend displays the
+contract's persisted values without deriving or replacing its decision.
 
 ## Current status
 
-**Phase 3 frontend: complete and locally verified. Real network verification: pending.**
+**Phase 4 closure: real onchain E2E verified and real integration enabled.**
 
-No contract has been deployed by this phase. No real GenLayer RPC requests, transactions, faucet use, or hosting actions were performed. Repository A was not modified. The Campaign Banner is a clearly labelled static **Example / Demo**, with no fabricated onchain outcome.
+The user manually completed deployment, create_review and evaluate in Studio.
+Work independently retrieved the original transactions and persisted Review #1:
+EVALUATED / ACCEPTED, **C1–C5 all PASS**. Evaluation: Normal, 5 initial validators,
+0 rotations, **3 AGREE / 2 DISAGREE**. This is not five AGREE votes.
 
-## Local development
+[REAL_NETWORK_EVIDENCE.md](REAL_NETWORK_EVIDENCE.md) records the precise evidence,
+actual brief/spec hash, raw vote-map entries, persistence checks and limitations.
+[Deployment manifest](intelligent-contract/DEPLOYMENT_MANIFEST_STUDIONET.md)
+identifies the exact deployed source and all three transactions.
 
-Requires Node.js 22.12+ (validated on Node.js 24.19.0) and npm.
+## Local development and validation
+
+Requires Node.js 22.12+ and npm. Runtime SDK remains **genlayer-js 1.1.8** exactly.
 
 ```sh
 npm ci
@@ -23,60 +35,102 @@ npm run build
 npm run preview
 ```
 
-The production output is `dist/`: ordinary static files with relative assets, no backend, database, secrets, remote font service, or paid API. Hosting is not enabled in this phase.
+- Full deterministic suite: **138 PASS / 0 FAIL / 0 SKIPPED**: all 109 prior cases
+  retained (only obsolete Phase 3 configuration/evidence assertions updated),
+  plus 29 focused Phase 4 cases.
+- TypeScript: **PASS**. Production build: **PASS**.
+- Repository A full approved suite: **219 PASS / 0 FAIL / 0 SKIPPED**.
+- Actual SDK get_review_count/get_review readback: **PASS**, without wallet.
+- Actual mounted React first-load and fresh-gateway/remount reconstruction:
+  **1 live read-only test PASS**, using native fetch, real SDK and RPC in JSDOM.
+- Full Chromium smoke and hosted-origin CORS: **not verified in this closure**.
+  Workspace Chromium is unavailable and its download returned an invalid ZIP;
+  Cloud Browser cannot reach the local workspace (ERR_CONNECTION_REFUSED).
 
-## Routes
+To repeat the separately opt-in live read-only check:
 
-Hash routing preserves the frozen logical routes without server rewrites:
+```sh
+npm run verify:readonly
+```
+
+It allows only gen_call/read to the authorized RPC, never writes, and records
+`verification/readonly-result.json`. Ordinary npm test forbids live network.
+`tests/evidence` contains selected original transaction fields and the actual
+SDK-normalized Review #1 for deterministic tests; production never imports these
+snapshots. No mock review is shipped as production detail data.
+
+## Routes and verified example
 
 | Logical route | Static URL suffix | Purpose |
 | --- | --- | --- |
-| `/` | `#/` | Product explanation, workflow, wallet state, Campaign Banner example |
-| `/create` | `#/create` | Immutable brief, HTTPS artifact URL, sequential C1…Cn criterion editor |
-| `/review/:id` | `#/review/1` | Read persisted review; creator-only evaluation; matrix, verdict, hashes |
+| `/` | `#/` | Explanation, four-step flow and Verified Onchain Example |
+| `/create` | `#/create` | Immutable brief, image URL and sequential criteria |
+| `/review/:id` | `#/review/1` | Actual contract readback and persisted matrix |
 
-`#/create?demo=campaign` starts with the frozen Campaign Banner brief and criteria. Its artifact URL remains empty until a public HTTPS URL is available. Direct review navigation and reload read the review again through the integration boundary; no in-memory or fabricated result is treated as chain state.
+Home displays the real Campaign Banner Review historical evidence summary:
+ACCEPTED, 5/5 PASS, contract and evaluation transaction. Its relative link opens
+`#/review/1`; Detail always obtains its result through get_review. Network failure
+shows an error, never a hard-coded result fallback. The separate Example / Demo
+starter prefills only the approved brief/criteria, with no fabricated matrix.
 
-## Unconfigured contract behavior
+## Real configuration and transaction safety
 
-`src/config.ts` intentionally has **no address** and `networkEnabled: false`. This is a Phase 3 network gate, not a placeholder contract pretending to be deployed. Preparing a form and viewing the static demo work normally; submission/evaluation are disabled, and review reads show a useful unconfigured message. SDK clients are only constructed after configuration checks. No environment variable can quietly enable production writes.
+`src/config.ts` enables only **Stable Studionet, chain ID 61999**, with:
 
-Wallet connection uses explicit `eth_requestAccounts`; passive account/network state uses `eth_accounts` and `eth_chainId`. Account/network changes update controls. The app does not automatically switch/add a network. The target is **Stable Studionet, chain ID 61999**. A wrong or unavailable wallet chain disables writes.
+- RPC: `https://studio.genlayer.com/api`.
+- Canonical contract: `0xFE36de515cD28269E1347faD4f583319e9111312`.
+- Explorer: `https://explorer-studio.genlayer.com`.
 
-`src/integration.ts` isolates `create_review`, `evaluate`, `get_review`, and `get_review_count`, using the installed **genlayer-js 1.1.8** API. SDK modules load lazily. Tests inject deterministic wallet/SDK boundaries; the shipped UI has no mock review database or fake onchain evidence.
+The SDK endpoint is explicit. Read-only review access works without a wallet.
+Wallet connection uses explicit eth_requestAccounts; passive state uses
+eth_accounts/eth_chainId. Account/network events update controls. Wrong or
+unavailable chain disables writes; no automatic chain switch/add occurs.
+Evaluate is visible only to the original creator while PENDING.
 
-Writes require explicit actions, show signature/submitted/consensus/failure/completion states, and never automatically retry. Submitted hashes stay visible in the current page and lock duplicate writes even after a polling failure. Evaluation refresh reads persisted state. Creation confirms the new ID by matching creator and exact immutable input across at most 12 new reviews; it never guesses that the latest count belongs to this caller. If readback is ambiguous or excessively concurrent, it stops and requests manual recovery without resubmitting. Real receipt behavior and durable transaction recovery must be verified in the separately authorized Phase 4.
+Writes occur only after explicit user actions and wallet authorization; no
+write retry or automatic submission is implemented. Receipt polling requests
+FINALIZED every 10 seconds, bounded to 30 retries, and stops on transport error.
+The parser requires actual Leader SUCCESS, checks named execution and GenVM
+errors, and does not mistake canceled Validator runs for application failure.
+FINALIZED with failed Leader execution never reaches completion.
 
-## Local validation
+Before a signature request, the UI durably journals its action in localStorage.
+Submitted hashes survive refresh and link to Explorer. An interrupted/unknown
+signature outcome or submitted hash blocks duplicate writes after reload.
+Explicit wallet refusal before a hash removes the journal. Create recovery lets
+users open the known review ID and releases the lock only after readback matches
+creator and every immutable specification field. Evaluate recovery rereads state
+and clears its journal when EVALUATED. Clearing site storage or using another
+browser cannot preserve this local journal; do not assume it proves no prior write.
 
-- **109 PASS / 0 FAIL / 0 SKIPPED**, across four test files.
-- TypeScript check: **PASS**.
-- Production build: **PASS**, SDK split into lazy chunks.
-- Local Chromium smoke: Home/Create, direct review loading, reload, 1440/390/320 pixel layouts; no horizontal overflow, no page errors, no external requests.
-- Tests cover frozen form rules, add/remove/renumber/cap, wallet and network changes, all transaction states, duplicate prevention, creator controls, all verdict/cell labels, hashes, immutable order, image fallback, reload, missing IDs, demo integrity, and the network gate.
+Reads deduplicate identical in-flight calls without caching future readback.
+The narrow HTTP guard preserves 429/Retry-After before the pinned SDK parses
+JSON, applies a shared minimum 60-second cooldown and affects only the authorized
+RPC URL. Other fetches/successful responses pass through unchanged. Explicit
+refreshes during cooldown fail locally; no retry amplification occurs. 429 and
+503 paths are tested without intentionally exhausting the public bucket.
 
-## Canonical contract synchronization
+## Canonical source and frozen scope
 
-Repository A: `halihalibt/multimodal-acceptance-matrix-genlayer`.
-
-Approved source commit: `6fed5915a839b9b4336cd4723a69fd80df37fb25`.
-
-Complete copy: `intelligent-contract/contracts/multimodal_acceptance_matrix.py`.
-
+Source Repository A: `halihalibt/multimodal-acceptance-matrix-genlayer`.
+Exact deployed source commit: `6fed5915a839b9b4336cd4723a69fd80df37fb25`.
+Complete source copy: `intelligent-contract/contracts/multimodal_acceptance_matrix.py`.
 SHA256: `563ac0b7c429f571acb45ff427840555105401155aebe2d906e0a8960c56daf2`.
 
-Byte identity: **PASS**. See `intelligent-contract/SOURCE_PROVENANCE.md`. Final re-verification is required after any authorized Phase 4 compatibility patch; final deployment provenance remains pending.
+**Byte identity PASS** between A, B and decoded deployment transaction code.
+Neither production source copy changed. See
+[SOURCE_PROVENANCE.md](intelligent-contract/SOURCE_PROVENANCE.md).
 
-## Authoritative frozen documents
+Frozen documents remain authoritative: WORK_MASTER_PLAN.md,
+IMPLEMENTATION_SPEC_B.md, UI_SYSTEM_V1.md, TEST_AND_ACCEPTANCE_PLAN_B.md,
+CONTRACT_SOURCE_POLICY.md, WORK_EXECUTION_RULES.md, WORK_PROGRESS_TEMPLATE.md.
+Their earlier Phase 3 authorizations are superseded only by the user's explicit
+Phase 4 closure instruction; their architecture/semantic constraints still apply.
+[PROJECT_CHECKPOINT.md](PROJECT_CHECKPOINT.md) records the current completed stage.
 
-Read before changing implementation:
+The build is ordinary static dist files with relative assets and hash routing;
+no backend, database, server, secrets or paid API is needed. No dependency upgrades
+or new packages were added. Hosting is not enabled.
 
-1. `WORK_MASTER_PLAN.md`
-2. `IMPLEMENTATION_SPEC_B.md`
-3. `UI_SYSTEM_V1.md`
-4. `TEST_AND_ACCEPTANCE_PLAN_B.md`
-5. `CONTRACT_SOURCE_POLICY.md`
-6. `WORK_EXECUTION_RULES.md`
-7. `WORK_PROGRESS_TEMPLATE.md`
-
-`PROJECT_CHECKPOINT.md` records this phase's acceptance, files, dependencies, constraints, and unresolved work. Do not redesign the product or proceed to Phase 4 without explicit authorization.
+**No new blockchain transactions sent.** No deploy/upgrade, faucet, hosting,
+automatic merge, Portal submission or Phase 5. Draft PR review is the stop point.

@@ -34,14 +34,15 @@ function provider(chain = "0xf22f"): Provider {
       ),
   };
 }
-it("production config has no invented address and disables real network", () => {
-  expect(contractConfig.address).toBeUndefined();
-  expect(contractConfig.networkEnabled).toBe(false);
+it("production config uses the actual canonical Stable Studionet deployment", () => {
+  expect(contractConfig.address).toBe("0xFE36de515cD28269E1347faD4f583319e9111312");
+  expect(contractConfig.rpcUrl).toBe("https://studio.genlayer.com/api");
+  expect(contractConfig.networkEnabled).toBe(true);
   expect(contractConfig.chainId).toBe(61999);
 });
 it("unconfigured reads cannot construct an SDK or contact RPC", async () => {
   const client = vi.fn();
-  const g = createGateway({ client, provider: () => undefined });
+  const g = createGateway({ config: { ...contractConfig, address: undefined }, client, provider: () => undefined });
   await expect(g.getReview(1)).rejects.toThrow("not configured");
   expect(client).not.toHaveBeenCalled();
 });
@@ -49,7 +50,7 @@ it("unconfigured writes cannot request signatures", async () => {
   const p = provider();
   const client = vi.fn();
   await expect(
-    createGateway({ provider: () => p, client }).evaluate(1, vi.fn()),
+    createGateway({ config: { ...contractConfig, address: undefined }, provider: () => p, client }).evaluate(1, vi.fn()),
   ).rejects.toThrow("not configured");
   expect(p.request).not.toHaveBeenCalled();
   expect(client).not.toHaveBeenCalled();

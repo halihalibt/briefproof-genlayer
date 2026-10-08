@@ -8,7 +8,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify:readonly": "vitest run --config readonly-check.config.ts"
   },
   "dependencies": {
     "genlayer-js": "1.1.8",

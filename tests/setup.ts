@@ -4,10 +4,11 @@ import { afterEach, beforeEach, vi } from "vitest";
 afterEach(cleanup);
 beforeEach(() => {
   window.location.hash = "/";
+  localStorage.clear();
   vi.stubGlobal(
     "fetch",
     vi.fn(() => {
-      throw new Error("Real network forbidden in Phase 3 tests.");
+      throw new Error("Live network forbidden in deterministic tests.");
     }),
   );
 });
