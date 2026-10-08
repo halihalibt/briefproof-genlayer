@@ -1,0 +1,86 @@
+{
+  "hash": "0xd87d70045996cdf565eec20a4bd1be1920063fbf724b2fba1c6fe634138b4fec",
+  "status": 7,
+  "statusName": "FINALIZED",
+  "result": 6,
+  "result_name": "MAJORITY_AGREE",
+  "num_of_initial_validators": 5,
+  "rotation_count": 0,
+  "execution_mode": "NORMAL",
+  "leader_only": false,
+  "created_at": "2026-10-08T15:52:01.923966+00:00",
+  "from_address": "0x22Acaa233b7b985b36ef168F2DE9295334065B15",
+  "to_address": "0xFE36de515cD28269E1347faD4f583319e9111312",
+  "consensus_data": {
+    "votes": {
+      "0x5310dcF075E0BD47d29B8ec6581F736C767f54D2": "agree",
+      "0x772ffCd1dF6Cc566eC4b8d3f4F4f8eBbb6B36C84": "idle",
+      "0x9ea87b28DcA2F79fe108CF06a4c13B4c876AC23d": "agree",
+      "0xE6BD8050758CB15fC88387223E31Ae2708B119dC": "agree",
+      "0xec2Fb79cd12255Eb34886CEd7332f27B98DEe658": "idle"
+    },
+    "leader_receipt": [
+      {
+        "mode": "leader",
+        "vote": null,
+        "result": {
+          "raw": "AAA=",
+          "status": "return",
+          "payload": {
+            "raw": [
+              0
+            ],
+            "readable": "null"
+          }
+        },
+        "calldata": {
+          "base64": "Bg==",
+          "raw": [
+            6
+          ],
+          "readable": "{}"
+        },
+        "eq_outputs": {},
+        "genvm_result": {
+          "stderr": "",
+          "stdout": "",
+          "raw_error": null,
+          "error_code": null,
+          "error_description": null
+        },
+        "execution_result": "SUCCESS"
+      },
+      {
+        "mode": "validator",
+        "vote": "agree",
+        "result": {
+          "raw": "AAA=",
+          "status": "return",
+          "payload": {
+            "raw": [
+              0
+            ],
+            "readable": "null"
+          }
+        },
+        "calldata": {
+          "base64": "Bg==",
+          "raw": [
+            6
+          ],
+          "readable": "{}"
+        },
+        "genvm_result": {
+          "stderr": "",
+          "stdout": "",
+          "raw_error": null,
+          "error_code": null,
+          "error_description": null
+        },
+        "execution_result": "SUCCESS"
+      }
+    ]
+  },
+  "deployed_source_sha256": "563ac0b7c429f571acb45ff427840555105401155aebe2d906e0a8960c56daf2",
+  "contract_address": "0xFE36de515cD28269E1347faD4f583319e9111312"
+}

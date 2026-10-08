@@ -15,6 +15,8 @@ import {
   type TxState,
 } from "./domain";
 import { demo } from "./demo";
+import { contractConfig, verifiedExample } from "./config";
+import { pendingWrite, rememberWrite, forgetWrite, recoverCreatedReview } from "./recovery";
 const defaultGateway = createGateway();
 const blankCriterion = (): Criterion => ({
   id: "C1",
@@ -138,7 +140,7 @@ function Transaction({
       {message && <p>{message}</p>}
       {hash && (
         <p className="hash">
-          Submitted transaction: {hash}
+          Submitted transaction: <a href={`${contractConfig.explorerUrl}/tx/${hash}`} target="_blank" rel="noreferrer">{hash} ↗</a>
           <br />
           Refresh/read before considering another write. This app never
           automatically retries writes.
@@ -228,7 +230,7 @@ export function App({ gateway = defaultGateway }: { gateway?: Gateway }) {
         <span className="dot" />{" "}
         {gateway.configured ? "Contract configured" : "Contract not configured"}
         <span className="separator">/</span>
-        <span>Real network verification pending</span>
+        <span>Stable Studionet · 61999</span>
         <span className="network">
           {wallet.address
             ? wrong
@@ -265,7 +267,7 @@ export function App({ gateway = defaultGateway }: { gateway?: Gateway }) {
       <footer>
         <span>BriefProof</span>
         <span>Clear criteria. Independent evaluation. A readable result.</span>
-        <span>Phase 3 · Network verification pending</span>
+        <span>Phase 4 · Onchain example available</span>
       </footer>
     </>
   );
@@ -306,6 +308,20 @@ function Home() {
           </div>
         ))}
       </section>
+      <section className="verified-section" aria-label="Verified Onchain Example">
+        <div className="section-heading">
+          <div><div className="eyebrow">VERIFIED ONCHAIN EXAMPLE</div>
+          <h2>{verifiedExample.title}</h2></div>
+          <span className="label">Review #{verifiedExample.reviewId}</span>
+        </div>
+        <p><strong>{verifiedExample.verdict} · {verifiedExample.summary}</strong></p>
+        <p className="caption">Finalized evaluation. Open the review to read its persisted result from the contract.</p>
+        <Link to="/review/1" className="button primary">Open verified Review #1 →</Link>
+        <p className="hash">Contract: {contractConfig.address}</p>
+        <a className="hash" href={`${contractConfig.explorerUrl}/tx/${verifiedExample.evaluationTransaction}`} target="_blank" rel="noreferrer">
+          Evaluation transaction: {verifiedExample.evaluationTransaction} ↗
+        </a>
+      </section>
       <section className="demo-section">
         <div className="section-heading">
           <div>
@@ -321,7 +337,7 @@ function Home() {
               title="Campaign Banner Review — FORMA: Make room for better."
             />
             <p className="caption">
-              Fictional brand · Static artwork · No chain evaluation yet
+              Fictional brand · Committed artwork · Used by verified Review #1
             </p>
           </div>
           <div>
@@ -351,6 +367,8 @@ function Create({
   wallet: WalletSnapshot;
 }) {
   const useDemo = window.location.hash.includes("?demo=campaign");
+  const [recovery, setRecovery] = useState(() => pendingWrite("create"));
+  const [recoveryId, setRecoveryId] = useState("");
   const [spec, setSpec] = useState<Specification>({
       title: useDemo ? demo.title : "",
       brief: useDemo ? demo.brief : "",
@@ -361,8 +379,8 @@ function Create({
     }),
     [errors, setErrors] = useState<string[]>([]),
     [state, setState] = useState<TxState>("idle"),
-    [hash, setHash] = useState<string>(),
-    [message, setMessage] = useState("");
+    [hash, setHash] = useState<string | undefined>(() => recovery?.hash),
+    [message, setMessage] = useState(recovery ? "Previous wallet request retained. Check the transaction or wallet history and open the created review by ID. Do not resubmit." : "");
   const lock = useRef(false);
   const busy = [
     "awaiting signature",
@@ -379,7 +397,7 @@ function Create({
   }
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (lock.current || hash) return;
+    if (lock.current || hash || recovery) return;
     const problems = validateSpecification(spec);
     setErrors(problems);
     if (problems.length || blocked) return;
@@ -387,11 +405,16 @@ function Create({
     setMessage("");
     try {
       const id = await gateway.createReview(spec, (s, h) => {
+        if (s === "awaiting signature") { rememberWrite("create", undefined, spec, wallet.address); setRecovery({}); }
         setState(s);
-        if (h) setHash(h);
+        if (h) { setHash(h); rememberWrite("create", h); }
       });
+      forgetWrite("create");
       window.location.hash = `/review/${id}`;
     } catch (e) {
+      if (/4001|rejected|denied/i.test(e instanceof Error ? e.message : String(e)) && !pendingWrite("create")?.hash) {
+        forgetWrite("create"); setRecovery(undefined);
+      }
       setState("failed");
       setMessage(errorMessage(e));
     } finally {
@@ -409,7 +432,7 @@ function Create({
         <p>Set the brief and the requirements before the evaluation begins.</p>
       </div>
       <form onSubmit={submit} noValidate>
-        <fieldset disabled={busy || !!hash}>
+        <fieldset disabled={busy || !!hash || !!recovery}>
           <div className="form-section">
             <div className="form-section-title">
               <span>01</span>
@@ -546,6 +569,10 @@ function Create({
           </div>
         )}
         <Transaction state={state} hash={hash} message={message} />
+        {recovery && <div className="form-section">
+          <label>Created review ID<input type="number" min="1" value={recoveryId} onChange={e => setRecoveryId(e.target.value)} /></label>
+          {reviewId(`/review/${recoveryId}`) && <Link to={`/review/${recoveryId}`} className="text-link">Read created review for recovery →</Link>}
+        </div>}
         <div className="form-submit">
           <div>
             <strong>
@@ -567,7 +594,7 @@ function Create({
           </div>
           <button
             className="button primary"
-            disabled={blocked || busy || !!hash}
+            disabled={blocked || busy || !!hash || !!recovery}
             type="submit"
           >
             {busy ? "Processing…" : "Create review ↗"}
@@ -588,11 +615,13 @@ function Detail({
   wallet: WalletSnapshot;
   blocked: boolean;
 }) {
+  const action = `evaluate:${id}`;
+  const [recovery, setRecovery] = useState(() => pendingWrite(action));
   const [review, setReview] = useState<Review>(),
     [loading, setLoading] = useState(true),
-    [message, setMessage] = useState(""),
+    [message, setMessage] = useState(recovery ? "Previous wallet request retained. Refresh persisted review and check transaction or wallet history before any new write." : ""),
     [state, setState] = useState<TxState>("idle"),
-    [hash, setHash] = useState<string>();
+    [hash, setHash] = useState<string | undefined>(() => recovery?.hash);
   const lock = useRef(false),
     active = useRef(true);
   async function load() {
@@ -602,9 +631,11 @@ function Detail({
       return;
     }
     setLoading(true);
-    setMessage("");
+    setMessage(recovery ? "Previous wallet request retained. Refresh/read before another write." : "");
     try {
       const r = await gateway.getReview(id);
+      recoverCreatedReview(r);
+      if (r.status === "EVALUATED") { forgetWrite(action); setRecovery(undefined); setMessage(""); }
       if (active.current) setReview(r);
     } catch (e) {
       if (active.current) setMessage(errorMessage(e));
@@ -624,6 +655,7 @@ function Detail({
       !id ||
       lock.current ||
       hash ||
+      recovery ||
       blocked ||
       wallet.address?.toLowerCase() !== review?.creator.toLowerCase() ||
       review?.status !== "PENDING"
@@ -633,13 +665,19 @@ function Detail({
     setMessage("");
     try {
       await gateway.evaluate(id, (s, h) => {
+        if (s === "awaiting signature") { rememberWrite(action); setRecovery({}); }
+        if (h) rememberWrite(action, h);
         if (active.current) {
           setState(s);
           if (h) setHash(h);
         }
       });
+      forgetWrite(action);
       await load();
     } catch (e) {
+      if (/4001|rejected|denied/i.test(e instanceof Error ? e.message : String(e)) && !pendingWrite(action)?.hash) {
+        forgetWrite(action); setRecovery(undefined);
+      }
       if (active.current) {
         setState("failed");
         setMessage(errorMessage(e));
@@ -738,7 +776,7 @@ function Detail({
               review.creator.toLowerCase() ? (
                 <button
                   className="button primary"
-                  disabled={blocked || busy || !!hash}
+                  disabled={blocked || busy || !!hash || !!recovery}
                   onClick={evaluate}
                 >
                   Evaluate review ↗
@@ -775,7 +813,7 @@ function Detail({
             <dt>Contract</dt>
             <dd>
               {gateway.configured
-                ? "Configured through integration layer"
+                ? contractConfig.address
                 : "Not configured · verification pending"}
             </dd>
             {review.spec_hash && (

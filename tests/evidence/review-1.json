@@ -1,0 +1,65 @@
+{
+  "artifact_hash": "7ad41f531eaa6391a3ac53e6f77de328e9d9087bd321904756e4d89977d5d378",
+  "artifact_url": "https://raw.githubusercontent.com/halihalibt/briefproof-genlayer/cda51899044472637e01cba5a70878b3006fef0b/public/campaign-banner.png",
+  "brief": "Create a premium promotional banner for the fictional FORMA product launch. Show FORMA and the exact launch phrase “Make room for better.” Use a dominant blue visual family. Do not include prices, investment claims, or financial returns. Aim for a clean, premium, minimal composition.",
+  "creator": "0x22Acaa233b7b985b36ef168F2DE9295334065B15",
+  "criteria": [
+    {
+      "assessment_mode": "BINARY",
+      "id": "C1",
+      "importance": "MUST",
+      "text": "Brand name is clearly visible"
+    },
+    {
+      "assessment_mode": "BINARY",
+      "id": "C2",
+      "importance": "MUST",
+      "text": "Required launch phrase is present"
+    },
+    {
+      "assessment_mode": "BINARY",
+      "id": "C3",
+      "importance": "MUST",
+      "text": "Blue is the dominant visual family"
+    },
+    {
+      "assessment_mode": "BINARY",
+      "id": "C4",
+      "importance": "MUST",
+      "text": "No prohibited price or investment claim appears"
+    },
+    {
+      "assessment_mode": "GRADED",
+      "id": "C5",
+      "importance": "SHOULD",
+      "text": "Composition follows a clean, premium, minimal direction"
+    }
+  ],
+  "matrix": [
+    {
+      "criterion_id": "C1",
+      "status": "PASS"
+    },
+    {
+      "criterion_id": "C2",
+      "status": "PASS"
+    },
+    {
+      "criterion_id": "C3",
+      "status": "PASS"
+    },
+    {
+      "criterion_id": "C4",
+      "status": "PASS"
+    },
+    {
+      "criterion_id": "C5",
+      "status": "PASS"
+    }
+  ],
+  "review_id": 1,
+  "spec_hash": "5d704bb43b083972a40cb8b8ff8e55d49c0739afdd1eb421f894e260a418165d",
+  "status": "EVALUATED",
+  "title": "Campaign Banner Review",
+  "verdict": "ACCEPTED"
+}
