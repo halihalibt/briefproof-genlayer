@@ -404,8 +404,8 @@ function Create({
     lock.current = true;
     setMessage("");
     try {
-      const id = await gateway.createReview(spec, (s, h) => {
-        if (s === "awaiting signature") { rememberWrite("create", undefined, spec, wallet.address); setRecovery({}); }
+      const id = await gateway.createReview(spec, (s, h, reviewCountBefore) => {
+        if (s === "awaiting signature") { rememberWrite("create", undefined, spec, wallet.address, reviewCountBefore); setRecovery({}); }
         setState(s);
         if (h) { setHash(h); rememberWrite("create", h); }
       });
