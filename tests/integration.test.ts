@@ -232,6 +232,53 @@ it("does not guess another concurrent creator review ID", async () => {
   ).rejects.toThrow("uniquely recovered");
   expect(sdk.writeContract).toHaveBeenCalledTimes(1);
 });
+it("accepts finalized SDK FINISHED_WITH_RETURN receipts", () => {
+  expect(() => assertReceipt({
+    statusName: "FINALIZED",
+    txExecutionResultName: "FINISHED_WITH_RETURN",
+  })).not.toThrow();
+});
+it("accepts the actual Studio-style successful leader receipt", () => {
+  expect(() => assertReceipt({
+    statusName: "FINALIZED",
+    txExecutionResultName: "FINISHED_WITH_RETURN",
+    consensus_data: { leader_receipt: [
+      { mode: "leader", execution_result: "SUCCESS" },
+      { mode: "validator", execution_result: "ERROR",
+        genvm_result: { error_code: "CONSENSUS_VALIDATOR_QUORUM_REACHED" } },
+    ] },
+  })).not.toThrow();
+});
+it("rejects finalized SDK failed execution despite consensus finality", () => {
+  for (const result of ["FINISHED_WITH_ERROR", "NOT_VOTED", "ERROR"]) {
+    expect(() => assertReceipt({
+      statusName: "FINALIZED", txExecutionResultName: result,
+    })).toThrow("did not finalize successfully");
+  }
+});
+it("rejects contradictory top-level and leader execution results", () => {
+  expect(() => assertReceipt({
+    statusName: "FINALIZED",
+    txExecutionResultName: "FINISHED_WITH_RETURN",
+    consensus_data: { leader_receipt: [
+      { mode: "leader", execution_result: "ERROR" },
+    ] },
+  })).toThrow("did not finalize successfully");
+});
+it("rejects a leader GenVM error even when a success enum is present", () => {
+  expect(() => assertReceipt({
+    statusName: "FINALIZED",
+    txExecutionResultName: "FINISHED_WITH_RETURN",
+    consensus_data: { leader_receipt: [
+      { mode: "leader", execution_result: "SUCCESS",
+        genvm_result: { raw_error: "execution failed" } },
+    ] },
+  })).toThrow("did not finalize successfully");
+});
+it("rejects non-finalized transactions with successful SDK execution enum", () =>
+  expect(() => assertReceipt({
+    statusName: "ACCEPTED", txExecutionResultName: "FINISHED_WITH_RETURN",
+  })).toThrow("did not finalize successfully"));
 it("rejects unsuccessful finalized receipt", () =>
   expect(() =>
     assertReceipt({ status: "FINALIZED", txExecutionResultName: "ERROR" }),
