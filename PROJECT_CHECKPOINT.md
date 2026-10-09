@@ -1,3 +1,35 @@
+# PROJECT CHECKPOINT — Phase 5 public browser E2E (2026-10-10)
+
+## Confirmed completion
+
+The project owner used public GitHub Pages with OKX Wallet to send actual
+`create_review` and `evaluate(2)` transactions to the canonical Stable
+Studionet contract. Explorer screenshots confirm both FINALIZED, consensus
+Accepted and GenVM SUCCESS. Create returned Review ID 2. The hosted
+`#/review/2` page subsequently read EVALUATED / ACCEPTED and C1–C5 PASS.
+
+Transactions:
+- Create: `0x81fa89474b06785396125102300f0abdaaa9c6f32afcbe4c56f2261b05773a8c`
+- Evaluate: `0x57459f79cdb936b6a528fa9f79a66739ec25fcf311e672b3a00eadc85fc6c678`
+
+The user refreshed before evaluate finished; final readback was successfully
+obtained later. Post-finality F5 has not yet been separately verified.
+The earlier web create error appeared despite a real SUCCESS transaction;
+receipt-compatibility PR #5 was merged, with 147 passing tests, typecheck and
+production build. The actual root cause of that prior error is not conclusively
+established without the captured SDK receipt object.
+
+Documentation: [PHASE5_PUBLIC_WEB_E2E_EVIDENCE.md](PHASE5_PUBLIC_WEB_E2E_EVIDENCE.md).
+
+## Remaining scope
+
+Finish final after-finality F5 confirmation and prepare review-friendly
+Portal submission materials. Full canonical production contract and its
+byte-identical project copy remain unchanged; no additional chain transaction,
+new deployment or Portal submission was performed by this documentation patch.
+
+---
+
 # PROJECT CHECKPOINT — Phase 5 publication / submission-readiness addendum (2026-10-09)
 
 This is a **new checkpoint addendum**. Earlier Phase 4 and prior stage

@@ -16,9 +16,13 @@ contract's persisted values without deriving or replacing its decision.
 - Verified persisted Review #1: https://halihalibt.github.io/briefproof-genlayer/#/review/1
 - The owner confirmed that the hosted site displays the verified result in Chrome
   and continues to read EVALUATED / ACCEPTED and 5/5 PASS after F5 refresh.
-- OKX Wallet appears connected in the hosted UI, but a live write initiated
-  **from this hosted site** has not been performed or verified. The three actual
-  existing writes were manually signed in GenLayer Studio.
+- Real public-site **OKX Wallet create + evaluate** succeeded for
+  [Review #2](https://halihalibt.github.io/briefproof-genlayer/#/review/2).
+  Both transactions were FINALIZED / GenVM SUCCESS; Review #2 displays
+  EVALUATED / ACCEPTED and all five PASS cells. See
+  [PHASE5_PUBLIC_WEB_E2E_EVIDENCE.md](PHASE5_PUBLIC_WEB_E2E_EVIDENCE.md).
+  The owner refreshed while evaluate was pending; later public readback passed.
+  A separate F5 **after** the final result is not yet confirmed.
 
 The user manually completed deployment, create_review and evaluate in Studio.
 Work independently retrieved the original transactions and persisted Review #1:
@@ -43,9 +47,9 @@ npm run build
 npm run preview
 ```
 
-- Full deterministic suite: **141 PASS / 0 FAIL / 0 SKIPPED** (verified by
-  GitHub Actions on the submission-readiness PR): 109 prior cases, 29 focused
-  Phase 4 cases and 3 new historical-review recovery cases.
+- Full deterministic suite: **147 PASS / 0 FAIL** verified by GitHub
+  Actions on PR #5 (141 tests already passing before six receipt-compatibility
+  tests). That PR also passed TypeScript checks and production build.
 - TypeScript: **PASS**. Production build: **PASS** in PR CI.
 - Repository A full approved suite: **219 PASS / 0 FAIL / 0 SKIPPED**.
 - Actual SDK get_review_count/get_review readback: **PASS**, without wallet.
@@ -53,8 +57,9 @@ npm run preview
   **1 live read-only test PASS**, using native fetch, real SDK and RPC in JSDOM.
 - Phase 4's isolated Work environment did not have usable Chromium. Later,
   the owner verified the **hosted** site in Chrome: image, live Review #1,
-  and F5 persistence passed. Full browser automation and hosted wallet-write
-  signing remain unverified.
+  and F5 persistence passed. Later, the owner manually signed both
+  create and evaluate **from the public website** for Review #2 and retrieved
+  its EVALUATED / ACCEPTED matrix. Full automated browser E2E was not run.
 
 To repeat the separately opt-in live read-only check:
 
@@ -99,8 +104,9 @@ Evaluate is visible only to the original creator while PENDING.
 Writes occur only after explicit user actions and wallet authorization; no
 write retry or automatic submission is implemented. Receipt polling requests
 FINALIZED every 10 seconds, bounded to 30 retries, and stops on transport error.
-The parser requires actual Leader SUCCESS, checks named execution and GenVM
-errors, and does not mistake canceled Validator runs for application failure.
+The parser accepts the SDK's FINISHED_WITH_RETURN or Studio's SUCCESS execution
+naming, checks named execution and GenVM errors, and does not mistake canceled
+Validator runs for application failure.
 FINALIZED with failed Leader execution never reaches completion.
 
 Before a signature request, the UI durably journals its action in localStorage.
@@ -152,7 +158,6 @@ or new packages were added. Public hosting uses GitHub Pages and the committed
 This repository, including the **full byte-identical Intelligent Contract source**
 under `intelligent-contract/contracts/multimodal_acceptance_matrix.py`, is
 licensed under [MIT](LICENSE) with the owner's explicit approval. The canonical
-source in Repository A and deployed contract bytes are unchanged. All previously
-recorded onchain transactions remain historical user-generated proof; this
-submission-readiness patch sends **no new transactions**. Portal submission and
-new hosted write-signing verification are not claimed complete.
+source in Repository A and deployed contract bytes are unchanged. Historical Studio transactions and subsequent hosted-site Review #2
+transactions are documented separately. This **documentation** patch sends
+**no new transactions**. Portal submission has not occurred.
