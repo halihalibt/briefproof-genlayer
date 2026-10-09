@@ -1,3 +1,29 @@
+# PROJECT CHECKPOINT — Phase 5 publication / submission-readiness addendum (2026-10-09)
+
+This is a **new checkpoint addendum**. Earlier Phase 4 and prior stage
+checkpoints below are historical records and remain intact.
+
+- Phase 4 closure PR and GitHub Pages publication PR were subsequently merged.
+- Public website: https://halihalibt.github.io/briefproof-genlayer/
+- Verified Review #1: https://halihalibt.github.io/briefproof-genlayer/#/review/1
+- The owner inspected the hosted Chrome UI, saw the real ACCEPTED / 5 PASS
+  result and successfully reloaded the review. This is a real hosted-origin
+  readback check; no hosted frontend **write/signing** was performed.
+- The complete production Intelligent Contract at
+  `intelligent-contract/contracts/multimodal_acceptance_matrix.py` remains
+  byte-for-byte identical to Repository A and the deployed source.
+- MIT license was authorized by the owner and is added in this draft PR.
+- Pending-create journal recovery is being tightened so a historical
+  same-specification review cannot clear a new write lock.
+- GitHub pull-request CI has **141 frontend tests PASS**, TypeScript PASS and
+  production build PASS (previous Phase 4 baseline: 138 frontend tests).
+  Repository A's previous fully verified contract test baseline is 219 PASS.
+- No new contracts, upgrades, blockchain transactions or Portal submissions.
+- Remaining scope: user review and merge of this draft PR, possible separately
+  authorized hosted wallet-write verification, reviewer-facing submission text.
+
+---
+
 # PROJECT CHECKPOINT — BriefProof — Phase 4 closure
 
 ## Overall goal

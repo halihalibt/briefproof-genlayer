@@ -209,6 +209,8 @@ it("handles create arguments and recovers actual ID by exact readback", async ()
     args: [spec.title, spec.brief, spec.artifact_url, spec.criteria],
     value: 0n,
   });
+  // Before the signing request, the current count is passed to the UI journal.
+  expect(progress).toHaveBeenCalledWith("awaiting signature", undefined, 0);
   expect(progress).toHaveBeenLastCalledWith("complete");
 });
 it("does not guess another concurrent creator review ID", async () => {

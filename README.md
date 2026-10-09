@@ -10,7 +10,15 @@ contract's persisted values without deriving or replacing its decision.
 
 ## Current status
 
-**Phase 4 closure: real onchain E2E verified and real integration enabled.**
+**Phase 5: public GitHub Pages demo live; submission-readiness checks ongoing.**
+
+- Public Demo: https://halihalibt.github.io/briefproof-genlayer/
+- Verified persisted Review #1: https://halihalibt.github.io/briefproof-genlayer/#/review/1
+- The owner confirmed that the hosted site displays the verified result in Chrome
+  and continues to read EVALUATED / ACCEPTED and 5/5 PASS after F5 refresh.
+- OKX Wallet appears connected in the hosted UI, but a live write initiated
+  **from this hosted site** has not been performed or verified. The three actual
+  existing writes were manually signed in GenLayer Studio.
 
 The user manually completed deployment, create_review and evaluate in Studio.
 Work independently retrieved the original transactions and persisted Review #1:
@@ -35,17 +43,18 @@ npm run build
 npm run preview
 ```
 
-- Full deterministic suite: **138 PASS / 0 FAIL / 0 SKIPPED**: all 109 prior cases
-  retained (only obsolete Phase 3 configuration/evidence assertions updated),
-  plus 29 focused Phase 4 cases.
-- TypeScript: **PASS**. Production build: **PASS**.
+- Full deterministic suite: **141 PASS / 0 FAIL / 0 SKIPPED** (verified by
+  GitHub Actions on the submission-readiness PR): 109 prior cases, 29 focused
+  Phase 4 cases and 3 new historical-review recovery cases.
+- TypeScript: **PASS**. Production build: **PASS** in PR CI.
 - Repository A full approved suite: **219 PASS / 0 FAIL / 0 SKIPPED**.
 - Actual SDK get_review_count/get_review readback: **PASS**, without wallet.
 - Actual mounted React first-load and fresh-gateway/remount reconstruction:
   **1 live read-only test PASS**, using native fetch, real SDK and RPC in JSDOM.
-- Full Chromium smoke and hosted-origin CORS: **not verified in this closure**.
-  Workspace Chromium is unavailable and its download returned an invalid ZIP;
-  Cloud Browser cannot reach the local workspace (ERR_CONNECTION_REFUSED).
+- Phase 4's isolated Work environment did not have usable Chromium. Later,
+  the owner verified the **hosted** site in Chrome: image, live Review #1,
+  and F5 persistence passed. Full browser automation and hosted wallet-write
+  signing remain unverified.
 
 To repeat the separately opt-in live read-only check:
 
@@ -97,10 +106,15 @@ FINALIZED with failed Leader execution never reaches completion.
 Before a signature request, the UI durably journals its action in localStorage.
 Submitted hashes survive refresh and link to Explorer. An interrupted/unknown
 signature outcome or submitted hash blocks duplicate writes after reload.
-Explicit wallet refusal before a hash removes the journal. Create recovery lets
-users open the known review ID and releases the lock only after readback matches
-creator and every immutable specification field. Evaluate recovery rereads state
-and clears its journal when EVALUATED. Clearing site storage or using another
+Explicit wallet refusal before a hash removes the journal. Create recovery
+requires an actual submitted hash and a review ID **greater than** the recorded
+pre-signature onchain review count, as well as an exact creator/specification
+match. This prevents a historical identical review from automatically unlocking
+a later pending create; old journals without an observed baseline fail closed.
+An interrupted signature with no transaction hash remains blocked pending
+manual transaction/wallet-history investigation. Concurrent indistinguishable
+same-creator creations can still require manual reconciliation. Evaluate recovery
+rereads state and clears its journal when EVALUATED. Clearing site storage or using another
 browser cannot preserve this local journal; do not assume it proves no prior write.
 
 Reads deduplicate identical in-flight calls without caching future readback.
@@ -130,7 +144,15 @@ Phase 4 closure instruction; their architecture/semantic constraints still apply
 
 The build is ordinary static dist files with relative assets and hash routing;
 no backend, database, server, secrets or paid API is needed. No dependency upgrades
-or new packages were added. Hosting is not enabled.
+or new packages were added. Public hosting uses GitHub Pages and the committed
+`.github/workflows/pages.yml` workflow; the user confirmed deployment succeeded.
 
-**No new blockchain transactions sent.** No deploy/upgrade, faucet, hosting,
-automatic merge, Portal submission or Phase 5. Draft PR review is the stop point.
+## MIT license and submission boundary
+
+This repository, including the **full byte-identical Intelligent Contract source**
+under `intelligent-contract/contracts/multimodal_acceptance_matrix.py`, is
+licensed under [MIT](LICENSE) with the owner's explicit approval. The canonical
+source in Repository A and deployed contract bytes are unchanged. All previously
+recorded onchain transactions remain historical user-generated proof; this
+submission-readiness patch sends **no new transactions**. Portal submission and
+new hosted write-signing verification are not claimed complete.
