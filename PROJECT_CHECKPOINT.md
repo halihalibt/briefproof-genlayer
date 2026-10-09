@@ -12,8 +12,9 @@ Transactions:
 - Create: `0x81fa89474b06785396125102300f0abdaaa9c6f32afcbe4c56f2261b05773a8c`
 - Evaluate: `0x57459f79cdb936b6a528fa9f79a66739ec25fcf311e672b3a00eadc85fc6c678`
 
-The user refreshed before evaluate finished; final readback was successfully
-obtained later. Post-finality F5 has not yet been separately verified.
+The user refreshed before evaluate finished, then obtained final readback.
+The owner **subsequently pressed F5 after finality** and confirmed that
+Review #2 still displayed EVALUATED / ACCEPTED and C1–C5 PASS.
 The earlier web create error appeared despite a real SUCCESS transaction;
 receipt-compatibility PR #5 was merged, with 147 passing tests, typecheck and
 production build. The actual root cause of that prior error is not conclusively
@@ -23,10 +24,12 @@ Documentation: [PHASE5_PUBLIC_WEB_E2E_EVIDENCE.md](PHASE5_PUBLIC_WEB_E2E_EVIDENC
 
 ## Remaining scope
 
-Finish final after-finality F5 confirmation and prepare review-friendly
-Portal submission materials. Full canonical production contract and its
-byte-identical project copy remain unchanged; no additional chain transaction,
-new deployment or Portal submission was performed by this documentation patch.
+The owner reports successful Intelligent Contracts Portal submission for
+Repository A; the separate BriefProof **Projects** submission is next and is
+not yet complete. Prepare final reviewer-facing Projects metadata and evidence.
+The complete canonical production contract and byte-identical project copy
+remain unchanged; this documentation patch performs no new chain transaction,
+new deployment or Projects Portal submission.
 
 ---
 
