@@ -80,10 +80,15 @@ export function assertReceipt(value: unknown): void {
     (receipts[0]?.mode === undefined ? receipts[0] : undefined);
   const executions = [r?.txExecutionResultName, leader?.execution_result]
     .filter(x => x !== undefined);
+  // GenLayer JS receipts may use the canonical FINISHED_WITH_RETURN enum,
+  // while Studio's nested leader receipt uses SUCCESS. Both mean successful
+  // execution; neither finality alone nor a validator vote proves success.
+  const succeeded = (result: unknown) =>
+    result === "SUCCESS" || result === "FINISHED_WITH_RETURN";
   const finality = [r?.statusName, typeof r?.status === "string" ? r.status : undefined]
     .filter(x => x !== undefined);
   if (!r || !finality.includes("FINALIZED") || finality.some(x => x !== "FINALIZED") ||
-      !executions.length || executions.some(x => x !== "SUCCESS") ||
+      !executions.length || executions.some(x => !succeeded(x)) ||
       leader?.genvm_result?.error_code != null || leader?.genvm_result?.raw_error != null)
     throw new Error(
       "The transaction did not finalize successfully. Refresh before considering another write.",
