@@ -196,6 +196,7 @@ export function createGateway(
         "create_review",
         [spec.title, spec.brief, spec.artifact_url, spec.criteria],
         progress,
+        before,
       );
       // Match readback, never assume count == this transaction's created ID.
       const after = await gateway.getReviewCount();
@@ -245,6 +246,7 @@ export function createGateway(
     method: string,
     args: unknown[],
     progress: Progress,
+    reviewCountBefore?: number,
   ): Promise<Address> {
     const target = requireConfig();
     const wallet = await snapshot();
@@ -253,7 +255,7 @@ export function createGateway(
       throw new Error(
         "Wrong or unavailable network. Select Stable Studionet in your wallet.",
       );
-    progress("awaiting signature");
+    progress("awaiting signature", undefined, reviewCountBefore);
     const sdk = await client(wallet.address, provider());
     const hash = await sdk.writeContract({
       address: target,
