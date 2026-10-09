@@ -44,11 +44,14 @@ The user supplied a hosted BriefProof Review #2 screenshot with:
 The browser visibly renders the result from the existing contract read path;
 it does not ship a hard-coded Review #2 verdict.
 
-**Reload verification boundary:** The user refreshed while the evaluate
-transaction was still pending, then later opened/read the final Review #2
-screen successfully. An additional F5 refresh **after** the final EVALUATED
-screen has not been separately confirmed in the supplied evidence. Do not
-present that narrower after-finality refresh as already tested.
+**Reload verification — later user confirmation:** The user first
+refreshed while `evaluate(2)` was still pending; the finalized onchain
+transaction nevertheless succeeded and Review #2 subsequently rendered its
+EVALUATED / ACCEPTED, five-PASS state. In a later browser test, the owner
+explicitly pressed F5 **after finality** and confirmed the same persisted
+EVALUATED / ACCEPTED / C1–C5 PASS result remained visible. This confirms
+post-finality hosted readback on that browser/session; it does not imply an
+automated cross-browser test or uninterrupted in-page completion animation.
 
 ## Observed error / recovery behavior
 

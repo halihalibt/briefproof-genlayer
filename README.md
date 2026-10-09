@@ -10,7 +10,7 @@ contract's persisted values without deriving or replacing its decision.
 
 ## Current status
 
-**Phase 5: public GitHub Pages demo live; submission-readiness checks ongoing.**
+**Phase 5: hosted browser E2E and post-finality F5 readback verified; preparing Projects Portal submission.**
 
 - Public Demo: https://halihalibt.github.io/briefproof-genlayer/
 - Verified persisted Review #1: https://halihalibt.github.io/briefproof-genlayer/#/review/1
@@ -21,8 +21,9 @@ contract's persisted values without deriving or replacing its decision.
   Both transactions were FINALIZED / GenVM SUCCESS; Review #2 displays
   EVALUATED / ACCEPTED and all five PASS cells. See
   [PHASE5_PUBLIC_WEB_E2E_EVIDENCE.md](PHASE5_PUBLIC_WEB_E2E_EVIDENCE.md).
-  The owner refreshed while evaluate was pending; later public readback passed.
-  A separate F5 **after** the final result is not yet confirmed.
+  The owner refreshed once while evaluate was still pending; after finality,
+  the hosted page read EVALUATED / ACCEPTED / five PASS, and the owner later
+  confirmed the same result persisted after a separate F5 refresh.
 
 The user manually completed deployment, create_review and evaluate in Studio.
 Work independently retrieved the original transactions and persisted Review #1:
@@ -59,7 +60,8 @@ npm run preview
   the owner verified the **hosted** site in Chrome: image, live Review #1,
   and F5 persistence passed. Later, the owner manually signed both
   create and evaluate **from the public website** for Review #2 and retrieved
-  its EVALUATED / ACCEPTED matrix. Full automated browser E2E was not run.
+  its EVALUATED / ACCEPTED matrix. The owner also confirmed a successful
+  F5 refresh after evaluation finalized. Full automated browser E2E was not run.
 
 To repeat the separately opt-in live read-only check:
 
@@ -159,5 +161,7 @@ This repository, including the **full byte-identical Intelligent Contract source
 under `intelligent-contract/contracts/multimodal_acceptance_matrix.py`, is
 licensed under [MIT](LICENSE) with the owner's explicit approval. The canonical
 source in Repository A and deployed contract bytes are unchanged. Historical Studio transactions and subsequent hosted-site Review #2
-transactions are documented separately. This **documentation** patch sends
-**no new transactions**. Portal submission has not occurred.
+transactions are documented separately. The owner reports successful
+Intelligent Contracts submission for the reusable primitive; **BriefProof's
+Projects submission is being prepared and has not occurred yet**. This
+documentation-only patch sends **no new transactions**.
