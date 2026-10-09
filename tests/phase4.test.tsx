@@ -137,9 +137,29 @@ it("HTTP 503 stops without retry or a fabricated result", async () => {
 
 it("created-review recovery unlocks only a matching immutable specification and creator", () => {
   const actual=evidence("review-1");
-  rememberWrite("create",evidence("create").hash,actual,actual.creator);
+  rememberWrite("create",evidence("create").hash,actual,actual.creator,0);
   recoverCreatedReview({...actual,brief:"different"});
   expect(pendingWrite("create")).toBeDefined();
   recoverCreatedReview(actual);
   expect(pendingWrite("create")).toBeUndefined();
+});
+
+
+it("does not clear a create journal for an older identical review", () => {
+  const actual = evidence("review-1");
+  rememberWrite("create", evidence("create").hash, actual, actual.creator, actual.review_id);
+  recoverCreatedReview(actual);
+  expect(pendingWrite("create")?.hash).toBe(evidence("create").hash);
+});
+it("does not clear a create journal without a submitted transaction hash", () => {
+  const actual = evidence("review-1");
+  rememberWrite("create", undefined, actual, actual.creator, 0);
+  recoverCreatedReview(actual);
+  expect(pendingWrite("create")).toBeDefined();
+});
+it("fails closed for legacy create journals without a prior review count", () => {
+  const actual = evidence("review-1");
+  rememberWrite("create", evidence("create").hash, actual, actual.creator);
+  recoverCreatedReview(actual);
+  expect(pendingWrite("create")).toBeDefined();
 });
