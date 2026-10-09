@@ -15,9 +15,9 @@ checkpoints below are historical records and remain intact.
 - MIT license was authorized by the owner and is added in this draft PR.
 - Pending-create journal recovery is being tightened so a historical
   same-specification review cannot clear a new write lock.
-- New tests and documentation changes are **pending pull-request CI**, not
-  falsely recorded as already executed. The previous Phase 4 verified baseline
-  was 138 frontend tests and 219 Repository A tests.
+- GitHub pull-request CI has **141 frontend tests PASS**, TypeScript PASS and
+  production build PASS (previous Phase 4 baseline: 138 frontend tests).
+  Repository A's previous fully verified contract test baseline is 219 PASS.
 - No new contracts, upgrades, blockchain transactions or Portal submissions.
 - Remaining scope: user review and merge of this draft PR, possible separately
   authorized hosted wallet-write verification, reviewer-facing submission text.
