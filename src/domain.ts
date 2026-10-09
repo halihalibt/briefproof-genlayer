@@ -31,7 +31,9 @@ export type TxState =
   | "waiting for consensus"
   | "failed"
   | "complete";
-export type Progress = (state: TxState, hash?: string) => void;
+// A create write may pass the onchain review count observed BEFORE signature.
+// It lets recovery exclude a pre-existing identical review.
+export type Progress = (state: TxState, hash?: string, reviewCountBefore?: number) => void;
 export function assignIds(criteria: Criterion[]): Criterion[] {
   return criteria.map((c, i) => ({ ...c, id: `C${i + 1}` }));
 }
