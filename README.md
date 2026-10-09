@@ -43,10 +43,10 @@ npm run build
 npm run preview
 ```
 
-- Full deterministic suite: **138 PASS / 0 FAIL / 0 SKIPPED**: all 109 prior cases
-  retained (only obsolete Phase 3 configuration/evidence assertions updated),
-  plus 29 focused Phase 4 cases.
-- TypeScript: **PASS**. Production build: **PASS**.
+- Full deterministic suite: **141 PASS / 0 FAIL / 0 SKIPPED** (verified by
+  GitHub Actions on the submission-readiness PR): 109 prior cases, 29 focused
+  Phase 4 cases and 3 new historical-review recovery cases.
+- TypeScript: **PASS**. Production build: **PASS** in PR CI.
 - Repository A full approved suite: **219 PASS / 0 FAIL / 0 SKIPPED**.
 - Actual SDK get_review_count/get_review readback: **PASS**, without wallet.
 - Actual mounted React first-load and fresh-gateway/remount reconstruction:
