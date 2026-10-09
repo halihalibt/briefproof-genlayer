@@ -1,6 +1,6 @@
 import { contractConfig } from "./config";
 import type { Review, Specification } from "./domain";
-interface PendingWrite { hash?: string; specification?: Specification; creator?: string }
+interface PendingWrite { hash?: string; specification?: Specification; creator?: string; reviewCountBefore?: number }
 const key = (action: string) => `briefproof:${contractConfig.chainId}:${contractConfig.address}:${action}`;
 export function pendingWrite(action: string): PendingWrite | undefined {
   let value: string | null;
@@ -12,11 +12,12 @@ export function pendingWrite(action: string): PendingWrite | undefined {
     return record;
   } catch { return {}; } // An unreadable journal never authorizes resubmission.
 }
-export function rememberWrite(action: string, hash?: string, specification?: Specification, creator?: string): void {
+export function rememberWrite(action: string, hash?: string, specification?: Specification, creator?: string, reviewCountBefore?: number): void {
   // Persist before requesting a signature. Storage failure prevents the write.
   const previous = pendingWrite(action);
   localStorage.setItem(key(action), JSON.stringify({ ...previous,
-    ...(hash ? { hash } : {}), ...(specification ? { specification, creator } : {}) }));
+    ...(hash ? { hash } : {}), ...(specification ? { specification, creator } : {}),
+    ...(Number.isSafeInteger(reviewCountBefore) && reviewCountBefore! >= 0 ? { reviewCountBefore } : {}) }));
 }
 export function forgetWrite(action: string): void {
   localStorage.removeItem(key(action));
@@ -25,7 +26,13 @@ export function forgetWrite(action: string): void {
 export function recoverCreatedReview(review: Review): void {
   const journal = pendingWrite("create");
   const spec = journal?.specification;
-  if (!spec || journal?.creator?.toLowerCase() !== review.creator.toLowerCase()) return;
+  // A matching historical review is NOT proof that the current create succeeded.
+  // Fail closed when no valid pre-signature count or submitted hash is known.
+  if (!spec || !journal?.hash ||
+      !Number.isSafeInteger(journal.reviewCountBefore) ||
+      journal.reviewCountBefore! < 0 ||
+      review.review_id <= journal.reviewCountBefore! ||
+      journal.creator?.toLowerCase() !== review.creator.toLowerCase()) return;
   if (spec.title === review.title && spec.brief === review.brief && spec.artifact_url === review.artifact_url &&
       spec.criteria.length === review.criteria.length && spec.criteria.every((c, i) => {
         const actual = review.criteria[i];
