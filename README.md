@@ -10,7 +10,7 @@ contract's persisted values without deriving or replacing its decision.
 
 ## Current status
 
-**Phase 5: hosted browser E2E and post-finality F5 readback verified; preparing Projects Portal submission.**
+**Phase 5: hosted browser E2E and post-finality F5 readback verified; recorded hosted browser verification.**
 
 - Public Demo: https://halihalibt.github.io/briefproof-genlayer/
 - Verified persisted Review #1: https://halihalibt.github.io/briefproof-genlayer/#/review/1
@@ -26,7 +26,7 @@ contract's persisted values without deriving or replacing its decision.
   confirmed the same result persisted after a separate F5 refresh.
 
 The user manually completed deployment, create_review and evaluate in Studio.
-Work independently retrieved the original transactions and persisted Review #1:
+Independent transaction and getter reads verified persisted Review #1:
 EVALUATED / ACCEPTED, **C1–C5 all PASS**. Evaluation: Normal, 5 initial validators,
 0 rotations, **3 AGREE / 2 DISAGREE**. This is not five AGREE votes.
 
@@ -56,7 +56,7 @@ npm run preview
 - Actual SDK get_review_count/get_review readback: **PASS**, without wallet.
 - Actual mounted React first-load and fresh-gateway/remount reconstruction:
   **1 live read-only test PASS**, using native fetch, real SDK and RPC in JSDOM.
-- Phase 4's isolated Work environment did not have usable Chromium. Later,
+- The initial test environment did not have usable Chromium. Later,
   the owner verified the **hosted** site in Chrome: image, live Review #1,
   and F5 persistence passed. Later, the owner manually signed both
   create and evaluate **from the public website** for Review #2 and retrieved
@@ -69,7 +69,7 @@ To repeat the separately opt-in live read-only check:
 npm run verify:readonly
 ```
 
-It allows only gen_call/read to the authorized RPC, never writes, and records
+It allows only gen_call/read to the configured RPC, never writes, and records
 `verification/readonly-result.json`. Ordinary npm test forbids live network.
 `tests/evidence` contains selected original transaction fields and the actual
 SDK-normalized Review #1 for deterministic tests; production never imports these
@@ -146,8 +146,7 @@ Neither production source copy changed. See
 Frozen documents remain authoritative: WORK_MASTER_PLAN.md,
 IMPLEMENTATION_SPEC_B.md, UI_SYSTEM_V1.md, TEST_AND_ACCEPTANCE_PLAN_B.md,
 CONTRACT_SOURCE_POLICY.md, WORK_EXECUTION_RULES.md, WORK_PROGRESS_TEMPLATE.md.
-Their earlier Phase 3 authorizations are superseded only by the user's explicit
-Phase 4 closure instruction; their architecture/semantic constraints still apply.
+The architecture and semantic constraints describe the supported integration.
 [PROJECT_CHECKPOINT.md](PROJECT_CHECKPOINT.md) records the current completed stage.
 
 The build is ordinary static dist files with relative assets and hash routing;
@@ -159,7 +158,7 @@ or new packages were added. Public hosting uses GitHub Pages and the committed
 
 This repository, including the **full byte-identical Intelligent Contract source**
 under `intelligent-contract/contracts/multimodal_acceptance_matrix.py`, is
-licensed under [MIT](LICENSE) with the owner's explicit approval. The canonical
+licensed under [MIT](LICENSE). The canonical
 source in Repository A and deployed contract bytes are unchanged. Historical Studio transactions and subsequent hosted-site Review #2
 transactions are documented separately. The owner reports successful
 Intelligent Contracts submission for the reusable primitive; **BriefProof's

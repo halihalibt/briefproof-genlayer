@@ -20,9 +20,9 @@
 | evaluate | `0xf33c581cf9f1701576d75bcea60724cb1517bc84dd33f1eb3ab03705d770cf69` | FINALIZED | SUCCESS | MAJORITY_AGREE |
 
 All three were manually signed by the user through Studio before this closure.
-Work fetched the original transactions through genlayer-js 1.1.8 getTransaction;
+The original transactions were fetched through genlayer-js 1.1.8 getTransaction;
 status is numeric 7 with statusName FINALIZED, result is 6 / MAJORITY_AGREE, and
-leader_receipt contains the actual Leader SUCCESS execution. Work did not send them.
+leader_receipt contains the actual Leader SUCCESS execution. These were reads of existing transactions.
 
 Deployment data.contract_code was base64-decoded and SHA256-checked against the
 canonical source above. The decoded deployed bytes and both repository source files

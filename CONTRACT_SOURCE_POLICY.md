@@ -26,13 +26,13 @@ Repository B must also contain:
 - source provenance
 - final source commit SHA
 - SHA256 of canonical source
-- deployment manifest after authorized deployment
+- deployment manifest after verified deployment
 
 ## Phase 3 Rule
 
 Phase 3 may copy the current approved source for self-contained development/documentation, but it must clearly be treated as a synchronized copy.
 
-If Repository A receives any authorized compatibility patch later:
+If Repository A receives any compatibility patch later:
 1. update the Repository B copy
 2. verify byte identity again
 3. update provenance/hash

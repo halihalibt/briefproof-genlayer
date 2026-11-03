@@ -3,8 +3,8 @@
 ## Provenance and verification boundary
 
 The user manually deployed, created Review #1 and evaluated it using Studio
-Normal (Full Consensus). The three transactions below predate Work closure.
-Work independently performed read-only RPC checks on 2026-10-08 UTC using
+Normal (Full Consensus). The three transactions below predate the read-only verification.
+Independent read-only RPC checks were performed on 2026-10-08 UTC using
 **genlayer-js 1.1.8**, without a signer, wallet signature, faucet or write transaction.
 
 Canonical contract: `0xFE36de515cD28269E1347faD4f583319e9111312`. Chain ID: **61999**.
@@ -39,7 +39,7 @@ Thus **3 AGREE / 2 DISAGREE**, not five AGREE. These are vote-map entries, which
 include the Leader address; do not relabel them as five independent Validator
 reruns. The transaction's validators array contains four Validator receipts.
 
-Work also opened the public Explorer evaluation detail page and its Consensus
+The verification also inspected the public Explorer evaluation detail page and its Consensus
 tab: FINALIZED, Normal, 0 rotations, 5 initial validators, Accepted, GenVM SUCCESS,
 and the same five vote-map entries were visibly present. Explorer's additional
 consensus data agrees with the original RPC transaction. No missing fields were
@@ -83,7 +83,7 @@ brief and precomputed hash are not authoritative for this review.
 ## Persistence and frontend readback
 
 - User read get_review(1), refreshed Studio, and read the persisted result again.
-- Work SDK reads: get_review_count() returned 1; get_review(1) returned an object
+- SDK reads: get_review_count() returned 1; get_review(1) returned an object
   after jsonSafeReturn normalization, not an envelope or fabricated result.
 - Review ID, EVALUATED, ACCEPTED, all five PASS cells, both exact hashes, exact
   brief and criterion order matched. No signing wallet was required.
@@ -99,9 +99,9 @@ brief and precomputed hash are not authoritative for this review.
 - Full local Chromium smoke could not run: no Chromium executable; its official
   download returned an invalid/truncated ZIP. Cloud Browser cannot reach workspace
   127.0.0.1:5173 (ERR_CONNECTION_REFUSED). Local Vite server and build work.
-- Browser wallet signing through BriefProof has not been executed by Work. The
+- Browser wallet signing through BriefProof was not exercised during the initial read-only verification. The
   user-confirmed signing workflow was Studio. No live frontend write is claimed.
-- Hosted-origin CORS and production hosting are unverified; hosting is unauthorized.
+- Hosted-origin CORS and production hosting are unverified; hosting was outside that historical measurement.
 - This successful image example does not prove every codec variant, adversarial
   visible prompt injection, live failure rollback, hidden redirect handling,
   mutable resource disagreement or all possible provider errors. Prior locally
@@ -110,13 +110,12 @@ brief and precomputed hash are not authoritative for this review.
   not intentionally exhaust the public rate-limit bucket.
 
 No new blockchain transactions sent. No deployment, upgrade, faucet, public
-hosting, automatic PR merge or Portal submission. Stop at Phase 4 closure;
-Phase 5 requires separate authorization.
+hosting, external submission.
 
 ## Reproducible frontend verification
 
 `npm run verify:readonly` is explicitly opt-in; ordinary npm test forbids network.
-The verifier restricts native fetch to the authorized RPC and gen_call/read only,
+The verifier restricts native fetch to the configured RPC and gen_call/read only,
 uses no signing wallet, and asserts the actual review instead of injecting fixtures.
 Result: verification/readonly-result.json. Original selected RPC transaction fields
 and SDK-normalized Review #1 are retained under tests/evidence; these snapshots

@@ -188,4 +188,3 @@ The production build must be compatible with static hosting.
 
 Routing must be chosen so direct navigation/reload does not require a custom server.
 
-Do not enable hosting in Phase 3 unless explicitly authorized.

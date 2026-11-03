@@ -12,8 +12,8 @@ https://halihalibt.github.io/briefproof-genlayer/
 4. Open the public URL and confirm the visual asset loads correctly.
 5. Open `#/review/1` directly; confirm live RPC-backed **EVALUATED**, **ACCEPTED**, five PASS cells, artifact hash and spec hash.
 6. Refresh `#/review/1`; verify the result is reconstructed from chain reads and no write is initiated.
-7. Check browser Console and Network for CORS, HTTP 429, HTTP 503, broken assets, or route errors. If reads fail due to hosted-origin CORS, STOP: do not circumvent browser security or introduce an unauthorized proxy.
-8. With OKX Wallet, confirm the intended account/network connection state; **do not send create/evaluate transactions as part of this read-only smoke test**. Browser wallet writing remains unverified until separately authorized.
+7. Check browser Console and Network for CORS, HTTP 429, HTTP 503, broken assets, or route errors. If reads fail due to hosted-origin CORS, record the CORS limitation without bypassing browser security.
+8. With OKX Wallet, confirm the intended account/network connection state; **do not send create/evaluate transactions as part of this read-only smoke test**. This read-only smoke test does not verify browser wallet writes.
 9. Repeat on mobile/narrow viewport where available.
 10. Capture screenshots of Home, Verified Onchain Example, Review #1, and GitHub Actions successful deployment. Record public URL in submission evidence only after verification.
 
